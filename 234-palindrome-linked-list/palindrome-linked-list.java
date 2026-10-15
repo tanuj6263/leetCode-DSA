@@ -6,32 +6,30 @@ class Solution {
         if (head == null || head.next == null) {
             return true;
         }
-        
-        int size = 0;
         ListNode temp = head;
-        while (temp != null) {
-            size++;
-            temp = temp.next;
+        ListNode slow= head;
+        ListNode fast= head;
+        while(fast!=null&&fast.next!= null){
+             fast=fast.next.next;
+            slow= slow.next;  
         }
-        
-        int[] arr = new int[size];
-        
-        
-        temp = head;
-        int index = 0;
-        while (temp != null) {
-            arr[index] = temp.val;
-            index++;
-            temp = temp.next;
+        ListNode curr= slow;
+         ListNode prev = null;
+        while (curr != null) {
+            ListNode nextTemp = curr.next; 
+            curr.next = prev;     
+            prev = curr; 
+            curr = nextTemp;  
         }
-        int[] arr1 = new int[size];
-        for (int i = 0; i < size; i++) {
-            arr1[i] = arr[size - 1 - i];
-        }
-        if (Arrays.equals(arr, arr1)) {
-            return true;
-        } else {
-            return false;
-        }
+       ListNode firstHalf = head;
+        ListNode secondHalf = prev; 
+        while (secondHalf != null) {
+            if (firstHalf.val != secondHalf.val) {
+                return false; 
+            }
+            firstHalf = firstHalf.next;
+            secondHalf = secondHalf.next;
+        }  
+        return true; 
     }
 }

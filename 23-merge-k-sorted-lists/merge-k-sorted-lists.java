@@ -1,68 +1,67 @@
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
 class Solution {
     public ListNode mergeKLists(ListNode[] lists) {
-        // Handle edge cases where input is empty
-        if (lists == null || lists.length == 0) return null;
-
-        // Convert the primitive array into a dynamic ArrayList so we can use .remove() and .add()
-        List<ListNode> dynamicList = new ArrayList<>();
-        for (ListNode node : lists) {
-            if (node != null) { // Only add non-null lists
-                dynamicList.add(node);
-            }
+        if (lists == null || lists.length == 0) {
+            return null;
         }
-
-        // If all lists were null, return null
-        if (dynamicList.size() == 0) return null;
-
-        // Loop until only 1 merged list is left inside our dynamic list
-        while (dynamicList.size() > 1) {
-            // 1. Remove the last element
-            ListNode a = dynamicList.remove(dynamicList.size() - 1);
-            
-            // 2. Remove the new last element
-            ListNode b = dynamicList.remove(dynamicList.size() - 1);
-            
-            // 3. Merge them using your function
-            ListNode c = merge(a, b);
-            
-            // 4. Add the merged list back to the collection
-            dynamicList.add(c);
-        }
-
-        // Return the single remaining fully-merged list
-        return dynamicList.get(0);
+        return divideAndConquer(lists, 0, lists.length - 1);
     }
-
-    public ListNode merge(ListNode list1, ListNode list2) {
-        // Ek dummy node banaya jo hamari nayi list ka starting point hoga
-        ListNode dummy = new ListNode(-1);
-        ListNode temp = dummy; // Nayi list ko aage badhane ke liye tracker
-        ListNode temp1 = list1;
-        ListNode temp2 = list2;
-
-        // Loop tabhi tak chalega jab tak DONO lists mein elements hain
-        while (temp1 != null && temp2 != null) {
-            if (temp1.val <= temp2.val) {
-                temp.next = temp1; // Agar list1 ka element chhota hai, use jodo
-                temp1 = temp1.next; // list1 ke pointer ko aage badhao
+    
+    private ListNode divideAndConquer(ListNode[] lists, int start, int end) {
+        // Base case: range is invalid
+        if (start > end) {
+            return null;
+        }
+        // Base case: only one list in the range
+        if (start == end) {
+            return lists[start];
+        }
+        
+        // Find the midpoint to split the array
+        int mid = start + (end - start) / 2;
+        
+        // Recursively divide the left and right halves
+        ListNode left = divideAndConquer(lists, start, mid);
+        ListNode right = divideAndConquer(lists, mid + 1, end);
+        
+        // Conquer: Merge the two sorted halves together
+        return mergeTwoLists(left, right);
+    }
+    
+    private ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        // Dummy node acts as a placeholder to easily build the new list
+        ListNode dummy = new ListNode(0);
+        ListNode curr = dummy;
+        
+        // Standard two-pointer comparison
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                curr.next = l1;
+                l1 = l1.next;
             } else {
-                temp.next = temp2; // Agar list2 ka element chhota hai, use jodo
-                temp2 = temp2.next; // list2 ke pointer ko aage badhao
+                curr.next = l2;
+                l2 = l2.next;
             }
-            temp = temp.next; // Apni nayi list ke tracker ko bhi aage badhao
+            curr = curr.next;
         }
-
-        // Agar list1 bachi hai to use direct jod do, nahi to list2 ko jod do
-        if (temp1 != null) {
-            temp.next = temp1;
-        } else {
-            temp.next = temp2;
+        
+        // Append remaining nodes from either list
+        if (l1 != null) {
+            curr.next = l1;
         }
-
-        // dummy.next hamari actual sorted list ka head (starting) hoga
+        if (l2 != null) {
+            curr.next = l2;
+        }
+        
         return dummy.next;
     }
 }
